@@ -1,43 +1,40 @@
 use std::cell::RefCell;
-use std::fmt::{Debug, Display};
+use std::collections::HashMap;
+use std::fmt::Debug;
 use std::rc::Rc;
+use std::pin::Pin;
+use std::ptr;
 
 #[derive(Debug)]
-pub struct Node<'a> {
-    pub path:       Option<String>,
-    pub links:      Vec<Rc<RefCell<Node<'a>>>>,
-    // pub path:       Option<&'a Path>,
-    // pub pair:       Option<Pair<&'a str>>,
+pub struct Node {
+    pub path: String,
+    // pub file_name: *const String,
+    pub links: HashMap<String, Rc<RefCell<Node>>>,
     pub is_dir:     bool,
-    // pub is_ignore:  bool,           // 忽略文件
-    // node_name: &'a str,
-    // suffix: String,
+    pub is_ignore:  bool,           // 忽略文件
+    pub is_leaf:    bool,
 }
 
-impl<'a> Default for Node<'a> {
+impl Default for Node {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a> Display for Node<'a> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({:?})", self.path)
-    }
-}
-
-impl<'a> Node<'a> {
+impl Node {
     pub fn new() -> Self{
         Node { 
-            links: Vec::new(), 
-            path: None,
-            // pair: None, 
+            path: String::from(""),
+            // file_name: ptr::null(),
+            links: HashMap::new(), 
             is_dir: false, 
-            // is_ignore: false 
+            is_ignore: false, 
+            is_leaf: false,
         }
     }
-}
 
-// struct LTree {
-//     node: Box<LTree>,
-// }
+    // pub fn set_file_name(self :Pin<&mut Self>) {
+    //     let this : &mut Self = unsafe { self.get_unchecked_mut() };
+    //     this.file_name = &mut this.path as *const String;
+    // }
+}

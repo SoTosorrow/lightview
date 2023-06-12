@@ -1,12 +1,22 @@
+use std::borrow::{BorrowMut, Borrow};
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::result::Result;
 use std::error::Error;
+use clap::Parser;
 
-mod pair;
 pub mod node;
 pub mod trie;
-use crate::trie::Trie;
+pub mod builder;
+pub use crate::node::Node;
+pub use crate::trie::Trie;
+
+#[derive(Parser)]
+struct Cli {}
 
 fn main() -> Result<(), Box<dyn Error>> {
+    // let args = Cli::parse();
+
     let args = std::env::args().collect::<Vec<_>>();
 
     match args.len() {
@@ -31,15 +41,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 use walkdir::WalkDir;
-fn build_file_tree(root_path: String) {
-    let mut trie = Trie::new();
+pub fn build_file_tree(root_path: String) -> Box<Trie> {
+    let mut trie = Box::new(Trie::new());
 
-    for entry in WalkDir::new(root_path) {
+    for entry in WalkDir::new(&root_path) {
         let entry = entry.unwrap();
-        trie.insert(entry.path().to_string_lossy().to_string());
+        let is_dir = entry.path().is_dir();
+        let entry = entry.path().to_string_lossy().to_string();
+        // let entry = entry.trim_start_matches(&root_path).to_string();
+        trie.insert(entry, is_dir);
     }
 
-    println!("{:?}", trie)
+    trie
 }
 
 /*
@@ -69,3 +82,4 @@ fn build_file_tree_custom(root_path: String) {
 }
  */
 //@todo 自动为文件配置
+//@todo 序列化保存到.view
