@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 clap = "4.1"
+walkdir = "2"
+# glob = "0.3"
