@@ -1,4 +1,4 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{rc::Rc, cell::RefCell, sync::{Arc, Mutex}};
 use crate::node::*;
 
 
@@ -6,6 +6,12 @@ use crate::node::*;
 pub struct Trie {
     root: Rc<RefCell<Node>>,
     pub size: usize,
+}
+
+impl Default for Trie {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Trie {
@@ -18,7 +24,7 @@ impl Trie {
         }
     }
 
-    pub fn insert(&mut self, postfix: String, is_dir: bool) {
+    pub fn insert(&mut self, postfix: String, is_dir: bool, /*md5*/ ) {
         let mut tmp = self.root.clone();
 
         for post in postfix.split('\\') {
@@ -82,9 +88,9 @@ impl Trie {
         let mut queue: Vec<Rc<RefCell<Node>>> = Vec::new();
 
         let node = self.root.clone();
-        queue.push(node.clone());
+        queue.push(node);
         
-        while queue.len() > 0 {
+        while !queue.is_empty() {
             let node = queue.pop().unwrap();
             // v.push(node.clone());
             node.borrow().links.iter().for_each(|i| {
@@ -99,6 +105,36 @@ impl Trie {
             });
         }
         v
+    }
 
+    pub fn as_arc_vec (nodes: Vec<Rc<RefCell<Node>>>) -> Vec<Arc<Mutex<Node>>> {
+        nodes.into_iter().map(move |i|{
+            unsafe {
+                let i = i.as_ptr();
+                let n = Node {
+                    path: (*i).path.clone(),
+                    links: (*i).links.clone(),
+                    is_dir: (*i).is_dir,
+                    is_ignore: (*i).is_ignore,
+                    is_leaf: (*i).is_leaf,
+                };
+                Arc::new(Mutex::new(n))
+            }
+        }).collect()
+    }
+
+    pub fn as_clone_vec (nodes: Vec<Rc<RefCell<Node>>>) -> Vec<Node> {
+        nodes.into_iter().map(move |i|{
+            unsafe {
+                let i = i.as_ptr();
+                Node {
+                    path: (*i).path.clone(),
+                    links: (*i).links.clone(),
+                    is_dir: (*i).is_dir,
+                    is_ignore: (*i).is_ignore,
+                    is_leaf: (*i).is_leaf,
+                }
+            }
+        }).collect()
     }
 }

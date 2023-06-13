@@ -2,8 +2,9 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::rc::Rc;
-use std::pin::Pin;
-use std::ptr;
+// use std::pin::Pin;
+// use std::ptr;
+
 
 #[derive(Debug)]
 pub struct Node {
@@ -13,6 +14,8 @@ pub struct Node {
     pub is_dir:     bool,
     pub is_ignore:  bool,           // 忽略文件
     pub is_leaf:    bool,
+    // pub last_update
+    // pub md5
 }
 
 impl Default for Node {
@@ -38,3 +41,6 @@ impl Node {
     //     this.file_name = &mut this.path as *const String;
     // }
 }
+
+unsafe impl Send for Node{}
+unsafe impl Sync for Node{}

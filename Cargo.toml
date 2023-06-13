@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.1", features = ["derive"] }
 walkdir = "2"
+rayon = "1.7"
 # itertools
 # slog
