@@ -12,7 +12,7 @@ impl Builder {
         self
     }
 
-    pub fn build_with_dir(root_path: String) -> Self {
+    pub fn build_with_dir(root_path: &str) -> Self {
         let mut trie = Box::new(Trie::new());
 
         for entry in WalkDir::new(&root_path) {
@@ -26,11 +26,19 @@ impl Builder {
         Builder { trie }
     }
 
+    pub fn build_to_vec(root_path: String) {
+        for entry in WalkDir::new(&root_path) {
+            todo!()
+        }
+    }
+
+    //@todo replace collect() to build_to_vec
     pub fn on_config(&self, config: &str) {
         let n = Trie::as_clone_vec(self.trie.collect());
-        n.par_iter().map(move |i| {
-            println!("{:?}",i.path);
+        let c = n.par_iter().map(move |i| {
+            // println!("{:?}",i.path);
             i
         }).count();
+        println!("{}",c);
     }
 }

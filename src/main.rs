@@ -3,27 +3,38 @@ use std::error::Error;
 
 pub mod node;
 pub mod trie;
+pub mod notifyer;
 pub mod builder;
+pub mod tom;
 pub use crate::node::Node;
 pub use crate::trie::Trie;
 pub use crate::builder::Builder;
+pub use crate::notifyer::Notifyer;
 
 fn main() -> Result<(), Box<dyn Error>> {
+
     let args = std::env::args().collect::<Vec<_>>();
 
     match args.len() {
         1 => {
             let root_path = std::env::current_dir()?;
             println!("[lightView Manage] {:?}", root_path.as_path());
-            // build_file_tree(root_path.to_string_lossy().to_string());
-            Builder
-                ::build_with_dir(r"D:\Sync\light_view\test".to_owned())
+
+            Builder::build_with_dir(root_path.to_str().unwrap())
                 .on_config("");
+
+            let thd = std::thread::spawn(move ||{
+                println!("[lightView Watch] {:?}", root_path.as_path());
+                Notifyer::new().watch(root_path.to_str().unwrap());
+            });
+            
+            println!("[lightView Runing...]");
+            thd.join();
         }
         2 => {
             let root_path = args[1].to_owned();
             println!("[lightView Manage] {:?}", root_path);
-            Builder::build_with_dir(root_path);
+            Builder::build_with_dir(&root_path);
         }
         _ => {
             println!("[lightView Failed!]");
